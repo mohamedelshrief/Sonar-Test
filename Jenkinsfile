@@ -1,19 +1,18 @@
-node {
-  stage('SCM') {
-    git 'https://github.com/mohamedelshrief/Sonar-Test.git'
+pipeline {
+  agent { label 'linux'}
+  options {
+    buildDiscarder(numToKeepStr:  '5'))
   }
-
-  stage('SonarQube analysis') {
-    def scannerHome = tool 'SonarScanner 4.0'
-    withSonarQubeEnv('sq1') {
-      sh "${scannerHome}/bin/sonar-scanner"
-    }
-  }
-
-  stage('SonarQube quality gate') {
-    def qualityGateStatus = sh(returnStdout: true, script: "curl -s -X POST http://localhost:9000/api/qualitygates/project_status/your_project_key")
-    if (qualityGateStatus.contains('ERROR')) {
-      error('SonarQube quality gate failed')
-    }
+  stages {
+    stage('Scan') {
+      steps {
+        withSonarQubeEnv(installatiionName: 'sq1') {
+          sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+        }
+      }
+    } 
   }
 }
+
+
+
